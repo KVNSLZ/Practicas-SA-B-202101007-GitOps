@@ -21,6 +21,9 @@ spec:
     server: https://kubernetes.default.svc
     namespace: sa-p8
 
-  automated → cambios en Git se sincronizan
-  prune     → elimina recursos que ya no existen en Git
-  selfHeal  → corrige cambios manuales hechos en Kubernetes
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
