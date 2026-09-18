@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 
 metadata:
   name: servicio-pedidos
@@ -14,10 +14,22 @@ spec:
   {{- end }}
 
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
+    canary:
       maxUnavailable: 0
       maxSurge: 1
+
+      steps:
+        - setWeight: 20
+        - pause:
+            duration: 10s
+
+        - setWeight: 50
+        - pause:
+            duration: 10s
+
+        - setWeight: 80
+        - pause:
+            duration: 10s
 
   selector:
     matchLabels:
