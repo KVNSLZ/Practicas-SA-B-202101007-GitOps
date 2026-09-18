@@ -1,0 +1,54 @@
+global:
+  namespace: sa-p7
+  environment: prod
+  logLevel: info
+  imagePullPolicy: IfNotPresent
+
+  labels:
+    course: software-avanzado
+    practice: practica-7
+
+servicio-autenticacion:
+  image:
+    repository: kvnslz/sa-p7-auth
+    tag: latest
+
+servicio-catalogo:
+  image:
+    repository: kvnslz/sa-p7-catalogo
+    tag: latest
+
+servicio-pedidos:
+  image:
+    repository: kvnslz/sa-p7-pedidos
+    tag: latest
+
+servicio-pagos:
+  image:
+    repository: kvnslz/sa-p7-pagos
+    tag: latest
+
+api-gateway:
+  image:
+    repository: kvnslz/sa-p7-gateway
+    tag: latest
+
+  service:
+    type: LoadBalancer
+    port: 3007
+
+cronjobs:
+  image:
+    repository: kvnslz/sa-p7-cronjobs
+    tag: latest
+    pullPolicy: IfNotPresent
+
+postgresql:
+  persistence:
+    storageClassName: gp3
+    size: 1Gi
+
+rabbitmq:
+  persistence:
+    storageClassName: gp3
+    size: 1Gi

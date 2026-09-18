@@ -1,0 +1,265 @@
+global:
+  namespace: sa-p5
+  environment: base
+  logLevel: info
+  imagePullPolicy: IfNotPresent
+
+  labels:
+    course: software-avanzado
+    practice: practica-5
+
+  config:
+    database:
+      host: postgresql
+      port: "5432"
+      name: practica4_sa
+      user: sa_practica5_user
+
+    rabbitmq:
+      host: rabbitmq
+      port: "5672"
+      queue: pagos.aprobados
+
+    frontendUrl: "http://localhost:3000"
+
+    jwt:
+      expiresInSeconds: "3600"
+      renewalGraceSeconds: "300"
+
+    ports:
+      auth: "3003"
+      catalogo: "3004"
+      pedidos: "3005"
+      pagos: "3006"
+      gateway: "3007"
+
+    services:
+      authUrl: "http://servicio-autenticacion:3003"
+      catalogoUrl: "http://servicio-catalogo:3004"
+      pedidosUrl: "http://servicio-pedidos:3005"
+      pagosUrl: "http://servicio-pagos:3006"
+
+    cron:
+      studentId: "202101007"
+      summaryQueue: "cron.resumen"
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+
+    capabilities:
+      drop:
+        - ALL
+
+    seccompProfile:
+      type: RuntimeDefault
+
+secrets:
+  databasePassword: ""
+  aesKeyHex: ""
+  emailLookupKeyHex: ""
+  jwtSecretHex: ""
+  rabbitmqUsername: ""
+  rabbitmqPassword: ""
+
+servicio-autenticacion:
+  replicaCount: 1
+
+  image:
+    repository: localhost/sa-p5-auth
+    tag: v1
+
+  service:
+    type: ClusterIP
+    port: 3003
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+
+servicio-catalogo:
+  replicaCount: 1
+
+  image:
+    repository: localhost/sa-p5-catalogo
+    tag: v1
+
+  service:
+    type: ClusterIP
+    port: 3004
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+
+servicio-pedidos:
+  replicaCount: 1
+
+  image:
+    repository: localhost/sa-p5-pedidos
+    tag: v1
+
+  service:
+    type: ClusterIP
+    port: 3005
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+
+servicio-pagos:
+  replicaCount: 1
+
+  image:
+    repository: localhost/sa-p5-pagos
+    tag: v1
+
+  service:
+    type: ClusterIP
+    port: 3006
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+
+api-gateway:
+  replicaCount: 1
+
+  image:
+    repository: localhost/sa-p5-gateway
+    tag: v1
+
+    service:
+      type: NodePort
+      port: 3007
+      nodePort: 30080
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+
+postgresql:
+
+  replicaCount: 1
+
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 5432
+
+  persistence:
+    size: 1Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+    limits:
+      cpu: 300m
+      memory: 512Mi
+
+rabbitmq:
+  replicaCount: 1
+
+  image:
+    repository: rabbitmq
+    tag: "4-management-alpine"
+    pullPolicy: IfNotPresent
+
+  service:
+    amqpPort: 5672
+    managementPort: 15672
+
+  persistence:
+    size: 1Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+    limits:
+      cpu: 400m
+      memory: 512Mi
+
+networkPolicy:
+  enabled: true
+
+governance:
+  enabled: true
+
+  quota:
+    requestsCpu: "1500m"
+    requestsMemory: "2Gi"
+    limitsCpu: "4"
+    limitsMemory: "4Gi"
+    pods: "30"
+    persistentVolumeClaims: "5"
+
+  limitRange:
+    defaultRequestCpu: "25m"
+    defaultRequestMemory: "32Mi"
+    defaultCpu: "250m"
+    defaultMemory: "256Mi"
+    maxCpu: "500m"
+    maxMemory: "512Mi"
+    minCpu: "10m"
+    minMemory: "16Mi"
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+cronjobs:
+  enabled: true
+
+  image:
+    repository: localhost/sa-p5-cronjobs
+    tag: v1
+    pullPolicy: IfNotPresent
+
+  registro:
+    schedule: "*/2 * * * *"
+
+  resumen:
+    schedule: "*/10 * * * *"
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi

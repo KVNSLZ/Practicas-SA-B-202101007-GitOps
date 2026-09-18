@@ -1,0 +1,54 @@
+global:
+  namespace: sa-p6
+  environment: prod
+  logLevel: info
+  imagePullPolicy: IfNotPresent
+
+  labels:
+    course: software-avanzado
+    practice: practica-6
+
+servicio-autenticacion:
+  image:
+    repository: 209211309332.dkr.ecr.us-east-1.amazonaws.com/sa-p6-auth
+    tag: v1
+
+servicio-catalogo:
+  image:
+    repository: 209211309332.dkr.ecr.us-east-1.amazonaws.com/sa-p6-catalogo
+    tag: v1
+
+servicio-pedidos:
+  image:
+    repository: 209211309332.dkr.ecr.us-east-1.amazonaws.com/sa-p6-pedidos
+    tag: v1
+
+servicio-pagos:
+  image:
+    repository: 209211309332.dkr.ecr.us-east-1.amazonaws.com/sa-p6-pagos
+    tag: v1
+
+api-gateway:
+  image:
+    repository: 209211309332.dkr.ecr.us-east-1.amazonaws.com/sa-p6-gateway
+    tag: v1
+
+  service:
+    type: LoadBalancer
+    port: 3007
+
+cronjobs:
+  image:
+    repository: 209211309332.dkr.ecr.us-east-1.amazonaws.com/sa-p6-cronjobs
+    tag: v1
+    pullPolicy: IfNotPresent
+
+postgresql:
+  persistence:
+    storageClassName: gp3
+    size: 1Gi
+
+rabbitmq:
+  persistence:
+    storageClassName: gp3
+    size: 1Gi

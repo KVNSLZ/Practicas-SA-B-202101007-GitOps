@@ -1,0 +1,36 @@
+{{- if .Values.pdb.enabled }}
+
+{{- $namespace := .Values.global.namespace }}
+{{- $minAvailable := .Values.pdb.minAvailable }}
+
+{{- $apps := list
+      "api-gateway"
+      "servicio-autenticacion"
+      "servicio-catalogo"
+      "servicio-pedidos"
+      "servicio-pagos"
+}}
+
+{{- range $index, $app := $apps }}
+
+{{- if $index }}
+---
+{{- end }}
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+
+metadata:
+  name: {{ $app }}-pdb
+  namespace: {{ $namespace }}
+
+spec:
+  minAvailable: {{ $minAvailable }}
+
+  selector:
+    matchLabels:
+      app: {{ $app }}
+
+{{- end }}
+
+{{- end }}

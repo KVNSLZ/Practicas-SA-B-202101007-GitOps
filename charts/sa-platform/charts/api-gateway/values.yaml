@@ -1,0 +1,46 @@
+replicaCount: 1
+
+image:
+  repository: localhost/sa-p5-gateway
+  tag: v1
+
+service:
+  type: ClusterIP
+  port: 3007
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+probes:
+  startup:
+    initialDelaySeconds: 2
+    periodSeconds: 2
+    timeoutSeconds: 2
+    failureThreshold: 30
+
+  readiness:
+    initialDelaySeconds: 2
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+  liveness:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 40
+
+serviceAccount:
+  name: sa-api-gateway

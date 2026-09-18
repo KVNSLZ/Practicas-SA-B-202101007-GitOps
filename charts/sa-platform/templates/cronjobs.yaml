@@ -1,0 +1,128 @@
+{{- if .Values.cronjobs.enabled }}
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-registro
+  namespace: {{ .Values.global.namespace }}
+
+spec:
+  schedule: {{ .Values.cronjobs.registro.schedule | quote }}
+  timeZone: "America/Guatemala"
+
+  concurrencyPolicy: Forbid
+
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+
+      template:
+        metadata:
+          labels:
+            app: cronjob-registro
+
+        spec:
+          serviceAccountName: sa-cron-registro
+          automountServiceAccountToken: false
+          restartPolicy: Never
+
+          containers:
+            - name: cron-registro
+
+              image: "{{ .Values.cronjobs.image.repository }}:{{ .Values.cronjobs.image.tag }}"
+              imagePullPolicy: {{ .Values.cronjobs.image.pullPolicy }}
+
+              command:
+                - python
+                - /app/cron1.py
+
+              securityContext:
+                {{ toYaml .Values.global.securityContext | nindent 16 }}
+
+              envFrom:
+                - configMapRef:
+                    name: {{ printf "%s-sa-platform-config" .Release.Name }}
+
+              env:
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ printf "%s-sa-platform-secret" .Release.Name }}
+                      key: DB_PASSWORD
+
+              resources:
+                {{ toYaml .Values.cronjobs.resources | nindent 16 }}
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-resumen
+  namespace: {{ .Values.global.namespace }}
+
+spec:
+  schedule: {{ .Values.cronjobs.resumen.schedule | quote }}
+  timeZone: "America/Guatemala"
+
+  concurrencyPolicy: Forbid
+
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+
+      template:
+        metadata:
+          labels:
+            app: cronjob-resumen
+
+        spec:
+          serviceAccountName: sa-cron-resumen
+          automountServiceAccountToken: false
+          restartPolicy: Never
+
+          containers:
+            - name: cron-resumen
+
+              image: "{{ .Values.cronjobs.image.repository }}:{{ .Values.cronjobs.image.tag }}"
+              imagePullPolicy: {{ .Values.cronjobs.image.pullPolicy }}
+
+              command:
+                - python
+                - /app/cron2.py
+
+              securityContext:
+                {{ toYaml .Values.global.securityContext | nindent 16 }}
+
+              envFrom:
+                - configMapRef:
+                    name: {{ printf "%s-sa-platform-config" .Release.Name }}
+
+              env:
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ printf "%s-sa-platform-secret" .Release.Name }}
+                      key: DB_PASSWORD
+
+                - name: RABBITMQ_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ printf "%s-sa-platform-secret" .Release.Name }}
+                      key: RABBITMQ_USERNAME
+
+                - name: RABBITMQ_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ printf "%s-sa-platform-secret" .Release.Name }}
+                      key: RABBITMQ_PASSWORD
+
+              resources:
+                {{ toYaml .Values.cronjobs.resources | nindent 16 }}
+
+{{- end }}

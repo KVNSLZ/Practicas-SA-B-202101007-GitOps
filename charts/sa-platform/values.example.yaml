@@ -1,0 +1,14 @@
+# Archivo de ejemplo. Todos los datos aquí son ficticios, No utilizar estos valores en un entorno real
+
+secrets:
+  databasePassword: "password_ejemplo"
+
+  aesKeyHex: "0000000000000000000000000000000000000000000000000000000000000000"
+
+  emailLookupKeyHex: "1111111111111111111111111111111111111111111111111111111111111111"
+
+  jwtSecretHex: "2222222222222222222222222222222222222222222222222222222222222222"
+
+  rabbitmqUsername: "usuario_ejemplo"
+  
+  rabbitmqPassword: "password_ejemplo"

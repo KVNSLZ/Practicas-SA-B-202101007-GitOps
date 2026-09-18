@@ -1,0 +1,11 @@
+apiVersion: v2
+
+name: postgresql
+
+description: PostgreSQL persistente para la Practica 5
+
+type: application
+
+version: 0.1.0
+
+appVersion: "16"

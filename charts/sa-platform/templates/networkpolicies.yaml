@@ -1,0 +1,192 @@
+{{- if .Values.networkPolicy.enabled }}
+
+# ======= AUTENTICACION =======
+# Solo API Gateway puede acceder al servicio
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: auth-allow-gateway
+  namespace: {{ .Values.global.namespace }}
+
+spec:
+  podSelector:
+    matchLabels:
+      app: servicio-autenticacion
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+
+      ports:
+        - protocol: TCP
+          port: 3003
+
+---
+# ======== CATALOGO ========
+# Solo API Gateway puede acceder al servicio
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: catalogo-allow-gateway
+  namespace: {{ .Values.global.namespace }}
+
+spec:
+  podSelector:
+    matchLabels:
+      app: servicio-catalogo
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+
+      ports:
+        - protocol: TCP
+          port: 3004
+
+---
+# ======= PEDIDOS =======
+# Solo API Gateway puede acceder al servicio
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pedidos-allow-gateway
+  namespace: {{ .Values.global.namespace }}
+
+spec:
+  podSelector:
+    matchLabels:
+      app: servicio-pedidos
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+
+      ports:
+        - protocol: TCP
+          port: 3005
+
+---
+# ====== PAGOS ======
+# Solo API Gateway puede acceder al servicio
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pagos-allow-gateway
+  namespace: {{ .Values.global.namespace }}
+
+spec:
+  podSelector:
+    matchLabels:
+      app: servicio-pagos
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+
+      ports:
+        - protocol: TCP
+          port: 3006
+
+---
+# ======= POSTGRESQL =======
+# Solo servicios autorizados pueden acceder a la base de datos
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgresql-allow-authorized
+  namespace: {{ .Values.global.namespace }}
+
+spec:
+  podSelector:
+    matchLabels:
+      app: postgresql
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: servicio-autenticacion
+
+        - podSelector:
+            matchLabels:
+              app: servicio-catalogo
+
+        - podSelector:
+            matchLabels:
+              app: servicio-pedidos
+
+        - podSelector:
+            matchLabels:
+              app: servicio-pagos
+
+        - podSelector:
+            matchLabels:
+              app: cronjob-registro
+
+        - podSelector:
+            matchLabels:
+              app: cronjob-resumen
+
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# ======== RABBITMQ ========
+# Pagos, Pedidos y el CronJob de resumen pueden acceder a AMQP
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rabbitmq-allow-authorized
+  namespace: {{ .Values.global.namespace }}
+
+spec:
+  podSelector:
+    matchLabels:
+      app: rabbitmq
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: servicio-pagos
+
+        - podSelector:
+            matchLabels:
+              app: servicio-pedidos
+
+        - podSelector:
+            matchLabels:
+              app: cronjob-resumen
+
+      ports:
+        - protocol: TCP
+          port: 5672
+
+{{- end }}

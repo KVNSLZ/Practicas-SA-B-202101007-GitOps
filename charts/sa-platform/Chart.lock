@@ -1,0 +1,24 @@
+dependencies:
+- name: servicio-autenticacion
+  repository: ""
+  version: 0.1.0
+- name: servicio-catalogo
+  repository: ""
+  version: 0.1.0
+- name: servicio-pedidos
+  repository: ""
+  version: 0.1.0
+- name: servicio-pagos
+  repository: ""
+  version: 0.1.0
+- name: api-gateway
+  repository: ""
+  version: 0.1.0
+- name: postgresql
+  repository: file://../postgresql
+  version: 0.1.0
+- name: rabbitmq
+  repository: file://../rabbitmq
+  version: 0.1.0
+digest: sha256:452e3ca87b63b34ed39b7840ef2598d31452ef55163063f12e907da0a75b13a5
+generated: "2026-08-28T16:53:21.292789885-06:00"

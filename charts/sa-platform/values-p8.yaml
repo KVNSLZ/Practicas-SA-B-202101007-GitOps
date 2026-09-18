@@ -1,0 +1,54 @@
+global:
+  namespace: sa-p8
+  environment: prod
+  logLevel: info
+  imagePullPolicy: IfNotPresent
+
+  labels:
+    course: software-avanzado
+    practice: practica-8
+
+servicio-autenticacion:
+  image:
+    repository: kvnslz/sa-p8-auth
+    tag: v1.0.0
+
+servicio-catalogo:
+  image:
+    repository: kvnslz/sa-p8-catalogo
+    tag: v1.0.0
+
+servicio-pedidos:
+  image:
+    repository: kvnslz/sa-p8-pedidos
+    tag: v1.0.0
+
+servicio-pagos:
+  image:
+    repository: kvnslz/sa-p8-pagos
+    tag: v1.0.0
+
+api-gateway:
+  image:
+    repository: kvnslz/sa-p8-gateway
+    tag: v1.0.0
+
+  service:
+    type: LoadBalancer
+    port: 3007
+
+cronjobs:
+  image:
+    repository: kvnslz/sa-p8-cronjobs
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+
+postgresql:
+  persistence:
+    storageClassName: gp3
+    size: 1Gi
+
+rabbitmq:
+  persistence:
+    storageClassName: gp3
+    size: 1Gi

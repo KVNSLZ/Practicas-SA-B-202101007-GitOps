@@ -1,0 +1,11 @@
+apiVersion: v2
+
+name: rabbitmq
+
+description: Broker RabbitMQ para comunicacion asincrona de la Practica 5
+
+type: application
+
+version: 0.1.0
+
+appVersion: "4"

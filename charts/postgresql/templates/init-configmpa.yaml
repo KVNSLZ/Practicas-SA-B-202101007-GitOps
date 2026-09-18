@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: {{ .Release.Name }}-postgresql-init
+  namespace: {{ .Values.global.namespace }}
+
+  labels:
+    app: postgresql
+
+data:
+{{ (.Files.Glob "files/*.sql").AsConfig | indent 2 }}

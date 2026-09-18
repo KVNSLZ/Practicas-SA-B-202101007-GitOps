@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: rabbitmq
+  namespace: {{ .Values.global.namespace }}
+
+  labels:
+    app: rabbitmq
+
+spec:
+  serviceName: rabbitmq-headless
+
+  replicas: {{ .Values.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: rabbitmq
+
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+
+    spec:
+      containers:
+        - name: rabbitmq
+
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          ports:
+            - name: amqp
+              containerPort: 5672
+
+            - name: management
+              containerPort: 15672
+
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-sa-platform-secret" .Release.Name }}
+                  key: RABBITMQ_USERNAME
+
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-sa-platform-secret" .Release.Name }}
+                  key: RABBITMQ_PASSWORD
+
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/rabbitmq
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        storageClassName: {{ .Values.persistence.storageClassName | quote }}
+
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}

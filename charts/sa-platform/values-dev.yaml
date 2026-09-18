@@ -1,0 +1,63 @@
+global:
+  environment: dev
+  logLevel: info
+
+
+servicio-autenticacion:
+  replicaCount: 1
+
+  image:
+    tag: v1
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+
+servicio-catalogo:
+  replicaCount: 1
+
+  image:
+    tag: v1
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+
+servicio-pedidos:
+  replicaCount: 1
+
+  image:
+    tag: v3
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+
+servicio-pagos:
+  replicaCount: 1
+
+  image:
+    tag: v2
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+
+api-gateway:
+  replicaCount: 1
+
+  image:
+    tag: v2
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi

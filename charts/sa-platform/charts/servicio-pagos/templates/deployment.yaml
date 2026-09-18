@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: servicio-pagos
+  namespace: {{ .Values.global.namespace }}
+
+  labels:
+    app: servicio-pagos
+
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  selector:
+    matchLabels:
+      app: servicio-pagos
+
+  template:
+    metadata:
+      labels:
+        app: servicio-pagos
+
+      annotations:
+        checksum/config: {{ printf "%s|%s|%s" .Values.global.environment .Values.global.logLevel (toJson .Values.global.config) | sha256sum | quote }}
+
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      automountServiceAccountToken: false
+
+      containers:
+        - name: servicio-pagos
+
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+
+          securityContext:
+            {{- toYaml .Values.global.securityContext | nindent 12 }}
+
+          ports:
+            - name: http
+              containerPort: 3006
+
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 3006
+            initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3006
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3006
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        
+
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-sa-platform-config" .Release.Name }}
+
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ printf "%s-sa-platform-config" .Release.Name }}
+                  key: PAGOS_PORT
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-sa-platform-secret" .Release.Name }}
+                  key: DB_PASSWORD
+
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-sa-platform-secret" .Release.Name }}
+                  key: RABBITMQ_USERNAME
+
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ printf "%s-sa-platform-secret" .Release.Name }}
+                  key: RABBITMQ_PASSWORD
