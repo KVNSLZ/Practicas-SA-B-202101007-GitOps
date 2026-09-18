@@ -43,6 +43,13 @@ spec:
 
           imagePullPolicy: {{ .Values.global.imagePullPolicy }}
 
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
           ports:
             - name: http
               containerPort: 3005
