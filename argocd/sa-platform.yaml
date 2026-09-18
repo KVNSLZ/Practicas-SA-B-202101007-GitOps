@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sa-platform
+  namespace: argocd
+
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/KVNSLZ/Practicas-SA-B-202101007-GitOps.git
+    targetRevision: main
+    path: charts/sa-platform
+
+    helm:
+      valueFiles:
+        - values-p8.yaml
+        - values-p8-prod.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sa-p8
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=false
