@@ -11,27 +11,27 @@ global:
 servicio-autenticacion:
   image:
     repository: kvnslz/sa-p8-auth
-    tag: v1.0.0
+    tag: v1.0.1
 
 servicio-catalogo:
   image:
     repository: kvnslz/sa-p8-catalogo
-    tag: v1.0.0
+    tag: v1.0.1
 
 servicio-pedidos:
   image:
     repository: kvnslz/sa-p8-pedidos
-    tag: v1.0.0
+    tag: v1.0.1
 
 servicio-pagos:
   image:
     repository: kvnslz/sa-p8-pagos
-    tag: v1.0.0
+    tag: v1.0.1
 
 api-gateway:
   image:
     repository: kvnslz/sa-p8-gateway
-    tag: v1.0.0
+    tag: v1.0.1
 
   service:
     type: LoadBalancer
@@ -40,7 +40,7 @@ api-gateway:
 cronjobs:
   image:
     repository: kvnslz/sa-p8-cronjobs
-    tag: v1.0.0
+    tag: v1.0.1
     pullPolicy: IfNotPresent
 
 postgresql:
