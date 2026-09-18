@@ -15,21 +15,26 @@ spec:
 
   strategy:
     canary:
+      canaryService: servicio-pedidos-canary
+
       maxUnavailable: 0
       maxSurge: 1
 
       steps:
         - setWeight: 20
-        - pause:
-            duration: 10s
+        - analysis:
+            templates:
+              - templateName: pedidos-smoke
 
         - setWeight: 50
-        - pause:
-            duration: 10s
+        - analysis:
+            templates:
+              - templateName: pedidos-integration
 
         - setWeight: 80
-        - pause:
-            duration: 10s
+        - analysis:
+            templates:
+              - templateName: pedidos-k6
 
   selector:
     matchLabels:
