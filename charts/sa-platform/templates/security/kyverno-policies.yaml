@@ -1,0 +1,148 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: p8-disallow-latest
+  annotations:
+    pod-policies.kyverno.io/autogen-controllers: none
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-image-tag
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - sa-p8
+      validate:
+        message: "Todas las imagenes deben utilizar un tag explicito."
+        pattern:
+          spec:
+            containers:
+              - image: "*:*"
+
+    - name: disallow-latest
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - sa-p8
+      validate:
+        message: "El tag latest no esta permitido."
+        pattern:
+          spec:
+            containers:
+              - image: "!*:latest"
+
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: p8-require-resources
+  annotations:
+    pod-policies.kyverno.io/autogen-controllers: none
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-requests-and-limits
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - sa-p8
+      validate:
+        message: "CPU y memoria requieren requests y limits."
+        pattern:
+          spec:
+            containers:
+              - resources:
+                  requests:
+                    cpu: "?*"
+                    memory: "?*"
+                  limits:
+                    cpu: "?*"
+                    memory: "?*"
+
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: p8-require-nonroot
+  annotations:
+    pod-policies.kyverno.io/autogen-controllers: none
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-nonroot-applications
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - sa-p8
+      exclude:
+        any:
+          - resources:
+              selector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - postgresql
+                      - rabbitmq
+      validate:
+        message: "Los contenedores de aplicacion deben ejecutarse como non-root."
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  runAsNonRoot: true
+
+
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: p8-verify-cosign
+  annotations:
+    pod-policies.kyverno.io/autogen-controllers: none
+spec:
+  validationFailureAction: Enforce
+  webhookConfiguration:
+    timeoutSeconds: 30
+
+  rules:
+    - name: verify-p8-images
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - sa-p8
+
+      verifyImages:
+        - imageReferences:
+            - "kvnslz/sa-p8-*:*"
+
+          failureAction: Enforce
+          required: true
+          verifyDigest: true
+          mutateDigest: false
+
+          attestors:
+            - entries:
+                - keyless:
+                    subjectRegExp: "^https://github\\.com/KVNSLZ/Practicas-SA-B-202101007/\\.github/workflows/p8-cicd\\.yml@refs/tags/v[0-9]+\\.[0-9]+\\.[0-9]+$"
+                    issuer: "https://token.actions.githubusercontent.com"
+                    rekor:
+                      url: https://rekor.sigstore.dev
