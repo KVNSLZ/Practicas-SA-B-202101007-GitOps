@@ -21,3 +21,9 @@ resources:
   limits:
     cpu: 400m
     memory: 512Mi
+
+# Valores por defecto para validación independiente del chart.
+# El chart padre sobrescribe estos valores durante el despliegue.
+global:
+  namespace: default
+  config: {}
