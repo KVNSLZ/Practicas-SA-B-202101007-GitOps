@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-p9
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/KVNSLZ/Practicas-SA-B-202101007-GitOps.git
+    targetRevision: main
+    path: argocd/apps-p9
+    directory:
+      recurse: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

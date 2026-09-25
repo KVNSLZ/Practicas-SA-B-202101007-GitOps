@@ -1,7 +1,7 @@
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: p8-disallow-latest
+  name: p9-disallow-latest
   annotations:
     pod-policies.kyverno.io/autogen-controllers: none
 spec:
@@ -15,7 +15,7 @@ spec:
               kinds:
                 - Pod
               namespaces:
-                - sa-p8
+                - sa-p9
       validate:
         message: "Todas las imagenes deben utilizar un tag explicito."
         pattern:
@@ -30,7 +30,7 @@ spec:
               kinds:
                 - Pod
               namespaces:
-                - sa-p8
+                - sa-p9
       validate:
         message: "El tag latest no esta permitido."
         pattern:
@@ -43,7 +43,7 @@ spec:
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: p8-require-resources
+  name: p9-require-resources
   annotations:
     pod-policies.kyverno.io/autogen-controllers: none
 spec:
@@ -57,7 +57,7 @@ spec:
               kinds:
                 - Pod
               namespaces:
-                - sa-p8
+                - sa-p9
       validate:
         message: "CPU y memoria requieren requests y limits."
         pattern:
@@ -75,7 +75,7 @@ spec:
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: p8-require-nonroot
+  name: p9-require-nonroot
   annotations:
     pod-policies.kyverno.io/autogen-controllers: none
 spec:
@@ -89,7 +89,7 @@ spec:
               kinds:
                 - Pod
               namespaces:
-                - sa-p8
+                - sa-p9
       exclude:
         any:
           - resources:
@@ -113,7 +113,7 @@ spec:
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: p8-verify-cosign
+  name: p9-verify-cosign
   annotations:
     pod-policies.kyverno.io/autogen-controllers: none
 spec:
@@ -122,14 +122,14 @@ spec:
     timeoutSeconds: 30
 
   rules:
-    - name: verify-p8-images
+    - name: verify-p9-images
       match:
         any:
           - resources:
               kinds:
                 - Pod
               namespaces:
-                - sa-p8
+                - sa-p9
 
       verifyImages:
         - imageReferences:

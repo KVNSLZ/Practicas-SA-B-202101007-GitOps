@@ -1,0 +1,18 @@
+global:
+  environment: prod
+  logLevel: info
+
+servicio-autenticacion:
+  replicaCount: 1
+
+servicio-catalogo:
+  replicaCount: 1
+
+servicio-pedidos:
+  replicaCount: 1
+
+servicio-pagos:
+  replicaCount: 1
+
+api-gateway:
+  replicaCount: 1
