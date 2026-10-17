@@ -1,0 +1,26 @@
+{{- if .Values.restoreBackup }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: restore-p9
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.gitopsRepoURL | quote }}
+    targetRevision: {{ .Values.gitopsRevision | quote }}
+    path: charts/p9-restore
+    helm:
+      parameters:
+        - name: backupName
+          value: {{ .Values.restoreBackup | quote }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: velero
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+{{- end }}

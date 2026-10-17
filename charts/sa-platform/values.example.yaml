@@ -10,5 +10,5 @@ secrets:
   jwtSecretHex: "2222222222222222222222222222222222222222222222222222222222222222"
 
   rabbitmqUsername: "usuario_ejemplo"
-  
+
   rabbitmqPassword: "password_ejemplo"

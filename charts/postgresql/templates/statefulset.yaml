@@ -23,6 +23,10 @@ spec:
         app: postgresql
 
       annotations:
+        pre.hook.backup.velero.io/container: postgresql
+        pre.hook.backup.velero.io/command: '["/bin/sh","-ec","mkdir -p /var/lib/postgresql/data/dr; pg_dump -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -Fc -f /var/lib/postgresql/data/dr/database.dump; date -u +%Y-%m-%dT%H:%M:%SZ > /var/lib/postgresql/data/dr/dump-time.txt"]'
+        pre.hook.backup.velero.io/on-error: Fail
+        pre.hook.backup.velero.io/timeout: 120s
         checksum/config: {{ toJson .Values.global.config.database | sha256sum | quote }}
 
     spec:
@@ -63,6 +67,20 @@ spec:
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
 
+          startupProbe:
+            exec:
+              command: ["sh", "-ec", 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            exec:
+              command: ["sh", "-ec", 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["sh", "-ec", 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+            periodSeconds: 10
+            failureThreshold: 6
           volumeMounts:
 
             # Datos persistentes

@@ -1,0 +1,13 @@
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: {{ printf "volumes-%s" (required "backupName es obligatorio" .Values.backupName) | trunc 63 | trimSuffix "-" }}
+  namespace: velero
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  backupName: {{ .Values.backupName | quote }}
+  includedNamespaces: [sa-p9]
+  includedResources: [persistentvolumeclaims, persistentvolumes]
+  includeClusterResources: true
+  restorePVs: true

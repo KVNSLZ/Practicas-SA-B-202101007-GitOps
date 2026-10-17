@@ -32,6 +32,22 @@ spec:
         checksum/config: {{ printf "%s|%s|%s" .Values.global.environment .Values.global.logLevel (toJson .Values.global.config) | sha256sum | quote }}
 
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: servicio-catalogo
+                topologyKey: kubernetes.io/hostname
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: servicio-catalogo
       serviceAccountName: {{ .Values.serviceAccount.name }}
       automountServiceAccountToken: false
 
