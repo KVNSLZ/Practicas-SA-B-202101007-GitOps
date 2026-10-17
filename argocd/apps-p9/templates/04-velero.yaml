@@ -45,7 +45,6 @@ spec:
             template:
               ttl: 168h0m0s
               includedNamespaces: [sa-p9]
-              includeClusterResources: false
               snapshotVolumes: true
               storageLocation: default
               volumeSnapshotLocations: [default]
