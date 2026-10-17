@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero-p9
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"
+spec:
+  project: default
+  source:
+    repoURL: https://vmware-tanzu.github.io/helm-charts
+    chart: velero
+    targetRevision: 12.2.1
+    helm:
+      releaseName: velero
+      valuesObject:
+        credentials:
+          useSecret: false
+        serviceAccount:
+          server:
+            name: velero
+        initContainers:
+          - name: aws-plugin
+            image: velero/velero-plugin-for-aws:v1.14.0
+            volumeMounts:
+              - mountPath: /target
+                name: plugins
+        configuration:
+          backupStorageLocation:
+            - name: default
+              provider: aws
+              bucket: sa-p9-backups-209211309332
+              prefix: velero
+              default: true
+              config:
+                region: us-east-1
+          volumeSnapshotLocation:
+            - name: default
+              provider: aws
+              config:
+                region: us-east-1
+        schedules:
+          p9-cada-10-minutos:
+            schedule: "*/10 * * * *"
+            template:
+              ttl: 168h0m0s
+              includedNamespaces: [sa-p9]
+              includeClusterResources: true
+              snapshotVolumes: true
+              storageLocation: default
+              volumeSnapshotLocations: [default]
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: velero
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

@@ -23,6 +23,15 @@ spec:
         app: rabbitmq
 
     spec:
+      # Con dos nodos, permite ensayar el drenaje del nodo de aplicaciones.
+      # No proporciona alta disponibilidad a las bases de datos.
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: postgresql
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: rabbitmq
 

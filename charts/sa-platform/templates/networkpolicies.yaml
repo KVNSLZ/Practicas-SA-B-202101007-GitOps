@@ -76,6 +76,10 @@ spec:
             matchLabels:
               app: api-gateway
 
+        - podSelector:
+            matchLabels:
+              app: pedidos-analysis
+
       ports:
         - protocol: TCP
           port: 3005

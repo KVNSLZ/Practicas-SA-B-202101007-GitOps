@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sa-platform-p9
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.gitopsRepoURL | quote }}
+    targetRevision: {{ .Values.gitopsRevision | quote }}
+    path: charts/sa-platform
+    helm:
+      valueFiles:
+      - values-p9.yaml
+      - values-p9-prod.yaml
+      releaseName: sa-platform-p9
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sa-p9
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=false
+  ignoreDifferences:
+  - group: ''
+    kind: Service
+    name: servicio-pedidos-canary
+    namespace: sa-p9
+    jsonPointers:
+    - /spec/selector/rollouts-pod-template-hash

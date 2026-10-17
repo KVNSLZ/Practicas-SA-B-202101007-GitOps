@@ -138,7 +138,7 @@ spec:
           failureAction: Enforce
           required: true
           verifyDigest: true
-          mutateDigest: false
+          mutateDigest: true
 
           attestors:
             - entries:

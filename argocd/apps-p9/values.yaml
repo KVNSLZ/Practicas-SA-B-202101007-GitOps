@@ -1,0 +1,3 @@
+restoreBackup: ""
+gitopsRepoURL: https://github.com/KVNSLZ/Practicas-SA-B-202101007-GitOps.git
+gitopsRevision: main
